@@ -1,0 +1,26 @@
+# --- Python / FastAPI Backend overrides ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# CRITICAL: Do not push your local SQLite database to GitHub
+backend/timecapsule_vr.db
+backend/timecapsule_vr.db-journal
+
+# --- React / Vite Frontend overrides ---
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.env
+
+# --- System & IDE overrides ---
+.DS_Store
+.idea/
+.vscode/
+*.log
