@@ -5,12 +5,12 @@ import userEvent from '@testing-library/user-event';
 let xrSessionSupported: boolean | undefined = false;
 
 vi.mock('@react-three/fiber', () => ({
-  Canvas: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-canvas">{children}</div>,
+  Canvas: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-canvas">{children}</div>, // eslint-disable-line
 }));
 vi.mock('@react-three/drei', () => ({
-  OrbitControls: () => null,
-  useTexture: () => ({ colorSpace: '' }),
-  PositionalAudio: () => null,
+  OrbitControls: () => 'OrbitControls',
+  useTexture: () => ({ colorSpace: '' }), // eslint-disable-line
+  PositionalAudio: () => 'PositionalAudio',
 }));
 vi.mock('@react-three/xr', () => ({
   XR: ({ children }: { children: React.ReactNode }) => <>{children}</>,

@@ -8,7 +8,7 @@ let rightInputSource: { inputSource: string } | undefined = { inputSource: 'righ
 vi.mock('@react-three/xr', () => ({
   useXRInputSourceState: (_type: string, handedness: 'left' | 'right') =>
     handedness === 'left' ? leftInputSource : rightInputSource,
-  useXRInputSourceEvent: (
+  useXRInputSourceEvent: ( // eslint-disable-line
     inputSource: string | undefined,
     event: string,
     fn: (e: unknown) => void

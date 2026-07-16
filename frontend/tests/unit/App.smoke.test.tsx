@@ -25,8 +25,7 @@ describe('App shell', () => {
 
   it('redirects an unauthenticated visitor to the login page', async () => {
     // 1. Force the browser environment to load a protected page path
-    // Change '/dashboard' to whatever your main authenticated route is (e.g., '/explorer')
-    window.history.pushState({}, 'Test page', '/dashboard');
+    window.history.pushState({}, 'Test page', '/explorer');
 
     const store = buildStore({
       auth: {
