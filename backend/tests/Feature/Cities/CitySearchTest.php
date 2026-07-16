@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\City;
+use Illuminate\Support\Str;
 
 test('cities can be listed', function () {
     City::factory()->count(3)->create();
@@ -31,7 +32,7 @@ test('a single city can be fetched by id', function () {
 });
 
 test('fetching a non-existent city returns 404', function () {
-    $response = $this->getJson('/api/v1/cities/'.\Illuminate\Support\Str::uuid());
+    $response = $this->getJson('/api/v1/cities/'.Str::uuid());
 
     $response->assertNotFound();
 });

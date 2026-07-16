@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Experience;
+use App\Policies\ExperiencePolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      * MediaAssetPolicy is registered here once MediaAsset lands in Milestone 6.
      */
     protected array $policies = [
-        \App\Models\Experience::class => \App\Policies\ExperiencePolicy::class,
+        Experience::class => ExperiencePolicy::class,
     ];
 
     public function register(): void
@@ -23,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         foreach ($this->policies as $model => $policy) {
-            \Illuminate\Support\Facades\Gate::policy($model, $policy);
+            Gate::policy($model, $policy);
         }
     }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Experience;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreExperienceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', \App\Models\Experience::class) ?? false;
+        return $this->user()?->can('create', Experience::class) ?? false;
     }
 
     public function rules(): array

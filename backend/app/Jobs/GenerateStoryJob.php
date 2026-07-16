@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AiGenerationJob;
+use App\Models\Experience;
 use App\Models\StoryContent;
 use App\Services\AI\Contracts\StoryGeneratorInterface;
 use Illuminate\Bus\Queueable;
@@ -22,9 +23,7 @@ class GenerateStoryJob implements ShouldQueue
     // Named $aiGenerationJob (not $job) because InteractsWithQueue already
     // declares a $job property internally (the underlying queue job
     // wrapper) — reusing that name causes a fatal property collision.
-    public function __construct(public AiGenerationJob $aiGenerationJob)
-    {
-    }
+    public function __construct(public AiGenerationJob $aiGenerationJob) {}
 
     public function handle(StoryGeneratorInterface $generator): void
     {
@@ -53,7 +52,7 @@ class GenerateStoryJob implements ShouldQueue
                 'completed_at' => now(),
             ]);
 
-            $experience->update(['status' => \App\Models\Experience::STATUS_PENDING_REVIEW]);
+            $experience->update(['status' => Experience::STATUS_PENDING_REVIEW]);
         } catch (\Throwable $e) {
             $this->aiGenerationJob->update([
                 'status' => AiGenerationJob::STATUS_FAILED,

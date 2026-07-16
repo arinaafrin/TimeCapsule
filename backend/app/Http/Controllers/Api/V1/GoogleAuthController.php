@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class GoogleAuthController extends Controller
 {
@@ -17,7 +17,7 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function callback(): JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+    public function callback(): JsonResponse|RedirectResponse
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 

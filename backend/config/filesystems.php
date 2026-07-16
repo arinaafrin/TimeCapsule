@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Storage;
-
 return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),

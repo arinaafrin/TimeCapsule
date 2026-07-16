@@ -24,9 +24,7 @@ class GenerateMediaJob implements ShouldQueue
     // Named $aiGenerationJob (not $job) — InteractsWithQueue already
     // declares a $job property internally, so reusing that name causes a
     // fatal property collision (see GenerateStoryJob for the same fix).
-    public function __construct(public AiGenerationJob $aiGenerationJob)
-    {
-    }
+    public function __construct(public AiGenerationJob $aiGenerationJob) {}
 
     public function handle(ImageGeneratorInterface $generator): void
     {

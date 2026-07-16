@@ -18,7 +18,7 @@ class AiServiceProvider extends ServiceProvider
         // the interface).
         $this->app->bind(StoryGeneratorInterface::class, function () {
             return match (config('services.ai_story.provider', 'anthropic')) {
-                default => new StoryGenerationService(),
+                default => new StoryGenerationService,
             };
         });
 
@@ -26,7 +26,7 @@ class AiServiceProvider extends ServiceProvider
         // implemented; GenerateMediaJob only depends on the interface.
         $this->app->bind(ImageGeneratorInterface::class, function () {
             return match (config('services.ai_image.provider', 'stability')) {
-                default => new ImageGenerationService(),
+                default => new ImageGenerationService,
             };
         });
     }
