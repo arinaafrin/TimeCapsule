@@ -1,0 +1,24 @@
+# TimeCapsule — Project Specification
+
+Full PRD, technical architecture, database schema, API endpoints, file tree, and milestone checklist were agreed upon in the planning phase (see project chat history / sign-off record). Key decisions locked in:
+
+- **Stack:** Laravel 11 + PostgreSQL (backend), React 18 + TypeScript + Vite + Tailwind CSS v4 (frontend)
+- **Immersive Viewer:** WebXR-native from MVP (Milestone 7), using only free/open-source packages — Three.js, @react-three/fiber, @react-three/xr (all MIT-licensed, no paid SDKs or Meta developer fees required for browser-based VR)
+- **AI Generation:** Server-side story + image generation, queued via Laravel Jobs, gated behind moderation before publish
+- **Security:** Signed S3 URLs, per-user rate limiting on AI endpoints, server-side prompt construction only
+
+## Milestone Status
+
+- [x] **Milestone 1: Repository, Environment & Base Layout** — scaffolded, frontend test/build verified green, backend skeleton hand-written pending local `composer install`
+- [x] **Milestone 2: Authentication & Roles** — register/login/logout/me + Google OAuth (Socialite) on the backend (pending local `composer install` + `php artisan test`); Redux auth slice, LoginPage, RegisterPage, GoogleCallbackPage, ProtectedRoute, and useAuth hook on the frontend — 9/9 frontend tests passing, production build green
+- [x] **Milestone 3: Cities & Explorer UI** — cities migration/model/seeder (6 demo cities), CityController with ilike search, GoogleMapsService (Places API adapter for admin/partner city import); CityMapSelector (graceful fallback when no Maps API key), YearTimelineSlider (BCE/CE + past/future labeling), ExplorerPage wired end-to-end
+- [x] **Milestone 4: Experiences Core CRUD** — experiences migration/model/relationships, ExperienceController (CRUD + status/city/year filtering), ExperiencePolicy (partner-owns-it-or-admin rules), StoreExperienceRequest/UpdateExperienceRequest; ExperienceCard, ExperienceDetailPage
+- [x] **Milestone 5: AI Story Generation Pipeline** — ai_generation_jobs/story_contents migrations/models, StoryGeneratorInterface + Claude API adapter (StoryGenerationService), GenerateStoryJob (queued), AiGenerationController with status polling, RateLimitAiGeneration middleware (per-user hourly cap); GenerationProgress component + useAiJobPolling hook — 17/17 frontend tests passing, production build green
+- [x] **Milestone 6: Media & Image Generation** — media_assets migration/model, ImageGeneratorInterface + Stability AI adapter, SignedUrlService (S3 pre-signed URLs, local fallback for dev/tests), GenerateMediaJob, partner manual upload endpoint + MediaUploadForm
+- [x] **Milestone 7: 360°/VR Viewer Experience (revised)** — restructured into the specified file tree: `ImmersiveViewer.tsx` (unified entry point, detects XR support via `useXRSupport` hook written TDD-first), `XRSphereScene.tsx` (equirectangular sphere + `SpatialNarrationAudio` via Three.js PositionalAudio), `XRControllerHandler.tsx` (trigger-based interaction, bound on both controllers independent of ray-pointer aim), `FlatFallbackViewer.tsx` (drag-to-look), `NarrationPlayer.tsx` (rewritten as a controlled presentational component — actual playback now lives in the WebXR/Three.js audio graph, not a plain `<audio>` tag). Performance pass: texture anisotropy/mipmapping + reduced sphere segment count (48×32, down from 60×40) for mobile-chipset headsets — true KTX2/Basis texture compression would need a server-side image pipeline and isn't implemented (documented as a known limitation, not silently skipped). `docs/MANUAL_QA_CHECKLIST.md` added for real-headset verification (jsdom has no GPU/WebXR device, so this genuinely can't be automated). 40/40 frontend tests passing, production build green.
+- [x] **Milestone 8: Moderation & Concept Security** — moderation_logs migration/model, ModerationController (queue/approve/reject/comment/logs, admin-only), audit logging on every action, ModerationQueuePage + ModerationReviewCard on the frontend; security pass: signed URL TTL wired to config, SecurityHeaders middleware registered globally, both AI prompt builders hardened against injection. **Confirmed locally: 44/44 backend tests passing, 40/40 frontend tests passing.**
+- [ ] Milestone 9: Favorites, Search & Discovery
+- [ ] Milestone 10: Partner Organizations & Institution Dashboard
+- [ ] Milestone 11: Hardening, Performance & Launch Prep
+
+Each milestone requires explicit sign-off before work begins, per the project's gatekeeper workflow rules.

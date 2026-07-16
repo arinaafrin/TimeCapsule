@@ -1,0 +1,77 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: timecapsule_testing
+          POSTGRES_USER: timecapsule
+          POSTGRES_PASSWORD: timecapsule
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo, pdo_pgsql, redis, zip
+          coverage: none
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Lint (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Run migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: pgsql_testing
+          DB_TEST_HOST: 127.0.0.1
+          DB_TEST_DATABASE: timecapsule_testing
+          DB_TEST_USERNAME: timecapsule
+          DB_TEST_PASSWORD: timecapsule
+
+      - name: Run tests
+        run: php artisan test
+        env:
+          DB_CONNECTION: pgsql_testing
+          DB_TEST_HOST: 127.0.0.1
+          DB_TEST_DATABASE: timecapsule_testing
+          DB_TEST_USERNAME: timecapsule
+          DB_TEST_PASSWORD: timecapsule
