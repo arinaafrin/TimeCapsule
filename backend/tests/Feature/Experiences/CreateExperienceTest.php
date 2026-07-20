@@ -100,3 +100,67 @@ test('an admin can delete an experience', function () {
     $response->assertNoContent();
     expect(Experience::find($experience->id))->toBeNull();
 });
+
+test('creating an experience with a google maps link resolves and persists the pinned location', function () {
+    $partner = User::factory()->create(['role' => 'partner']);
+    $city = City::factory()->create();
+
+    // 1. Force the config keys to have a value during test execution
+    config([
+        'services.google_maps.server_api_key' => 'test_key',
+        'services.google.maps_api_key' => 'test_key',
+    ]);
+
+    $mock = new \GuzzleHttp\Handler\MockHandler([
+        new \GuzzleHttp\Psr7\Response(200, [], json_encode([
+            'results' => [['formatted_address' => 'Piazza del Colosseo, 1, 00184 Roma RM, Italy']],
+        ])),
+    ]);
+    $client = new \GuzzleHttp\Client(['handler' => \GuzzleHttp\HandlerStack::create($mock)]);
+    
+    // Pass the test key into the constructor if your GoogleMapsService accepts it as a 2nd argument:
+    // new \App\Services\Maps\GoogleMapsService($client, 'test_key')
+    // Otherwise, the config() set above will handle it!
+    $this->app->instance(
+        \App\Services\Maps\GoogleMapsService::class,
+        new \App\Services\Maps\GoogleMapsService($client)
+    );
+
+    $response = $this->actingAs($partner)->postJson('/api/v1/experiences', [
+        'city_id' => $city->id,
+        'year' => 1889,
+        'era_label' => 'Belle Époque',
+        'google_maps_link' => 'https://www.google.com/maps/@41.8902142,12.4900422,17z',
+    ]);
+
+    $response
+        ->assertCreated()
+        ->assertJsonPath('data.pin_place_name', 'Piazza del Colosseo, 1, 00184 Roma RM, Italy');
+
+    expect((float) $response->json('data.pin_latitude'))->toEqualWithDelta(41.8902142, 0.0001);
+    expect((float) $response->json('data.pin_longitude'))->toEqualWithDelta(12.4900422, 0.0001);
+});
+
+test('an unresolvable google maps link does not block experience creation', function () {
+    $partner = User::factory()->create(['role' => 'partner']);
+    $city = City::factory()->create();
+
+    $mock = new \GuzzleHttp\Handler\MockHandler([
+        new \GuzzleHttp\Psr7\Response(200, []),
+    ]);
+    $client = new \GuzzleHttp\Client(['handler' => \GuzzleHttp\HandlerStack::create($mock)]);
+    $this->app->instance(
+        \App\Services\Maps\GoogleMapsService::class,
+        new \App\Services\Maps\GoogleMapsService($client)
+    );
+
+    $response = $this->actingAs($partner)->postJson('/api/v1/experiences', [
+        'city_id' => $city->id,
+        'year' => 1889,
+        'google_maps_link' => 'https://maps.app.goo.gl/deadLinkExample',
+    ]);
+
+    $response
+        ->assertCreated()
+        ->assertJsonPath('data.pin_place_name', null);
+});

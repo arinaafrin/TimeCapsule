@@ -16,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     protected array $policies = [
         Experience::class => ExperiencePolicy::class,
+        \App\Models\Journey::class => \App\Policies\JourneyPolicy::class,
     ];
 
     public function register(): void

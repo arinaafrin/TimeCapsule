@@ -31,13 +31,23 @@ class Experience extends Model
         'created_by',
         'approved_by',
         'google_maps_link',
+        'pin_latitude',
+        'pin_longitude',
+        'pin_place_name',
     ];
 
     protected function casts(): array
     {
         return [
             'year' => 'integer',
+            'pin_latitude' => 'decimal:7',
+            'pin_longitude' => 'decimal:7',
         ];
+    }
+
+    public function isFutureYear(): bool
+    {
+        return $this->year > (int) now()->format('Y');
     }
 
     public function city(): BelongsTo

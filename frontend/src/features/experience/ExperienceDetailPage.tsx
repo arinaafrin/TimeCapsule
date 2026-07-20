@@ -3,6 +3,11 @@ import { useParams } from 'react-router-dom';
 import { useGetExperienceQuery } from '../../api/experiencesApi';
 import { useGenerateStoryMutation } from '../../api/aiJobsApi';
 import { useListMediaQuery, useGenerateMediaMutation } from '../../api/mediaApi';
+import {
+  useListFavoritesQuery,
+  useAddFavoriteMutation,
+  useRemoveFavoriteMutation,
+} from '../../api/favoritesApi';
 import { GenerationProgress } from './GenerationProgress';
 import { MediaUploadForm } from './MediaUploadForm';
 import { ImmersiveViewer } from '../viewer/ImmersiveViewer';
@@ -16,6 +21,20 @@ export function ExperienceDetailPage() {
 
   const [generateStory, { isLoading: isGeneratingStory }] = useGenerateStoryMutation();
   const [generateMedia, { isLoading: isGeneratingMedia }] = useGenerateMediaMutation();
+
+  const { data: favorites = [] } = useListFavoritesQuery();
+  const [addFavorite, { isLoading: isFavoriting }] = useAddFavoriteMutation();
+  const [removeFavorite, { isLoading: isUnfavoriting }] = useRemoveFavoriteMutation();
+  const isFavorited = favorites.some((favorite) => favorite.id === id);
+
+  const handleToggleFavorite = () => {
+    if (!id) return;
+    if (isFavorited) {
+      removeFavorite(id);
+    } else {
+      addFavorite(id);
+    }
+  };
 
   const [activeStoryJobId, setActiveStoryJobId] = useState<string | null>(null);
   const [activeMediaJobId, setActiveMediaJobId] = useState<string | null>(null);
@@ -62,10 +81,23 @@ export function ExperienceDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-slate-900">
-        {cityName}, {experience.year}
-      </h1>
-      {experience.era_label && <p className="mt-1 text-slate-500">{experience.era_label}</p>}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {cityName}, {experience.year}
+          </h1>
+          {experience.era_label && <p className="mt-1 text-slate-500">{experience.era_label}</p>}
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleFavorite}
+          disabled={isFavoriting || isUnfavoriting}
+          aria-pressed={isFavorited}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        >
+          {isFavorited ? '★ Favorited' : '☆ Favorite'}
+        </button>
+      </div>
 
       {panorama && hasStory && 'narrative_script' in experience.story_content && (
         <div className="mt-6">

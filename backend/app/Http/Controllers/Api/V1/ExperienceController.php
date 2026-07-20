@@ -7,10 +7,15 @@ use App\Http\Requests\StoreExperienceRequest;
 use App\Http\Requests\UpdateExperienceRequest;
 use App\Http\Resources\ExperienceResource;
 use App\Models\Experience;
+use App\Services\Maps\GoogleMapsService;
 use Illuminate\Http\Request;
 
 class ExperienceController extends Controller
 {
+    public function __construct(protected GoogleMapsService $mapsService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = Experience::query()->with('city');
@@ -41,6 +46,17 @@ class ExperienceController extends Controller
             $query->where('year', $year);
         }
 
+        // Full-text-style search across city name and era/theme label, per the
+        // "Browse by city, era, theme" Search & Discovery requirement (Milestone 9).
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('era_label', 'ilike', "%{$search}%")
+                    ->orWhereHas('city', function ($cityQuery) use ($search) {
+                        $cityQuery->where('name', 'ilike', "%{$search}%");
+                    });
+            });
+        }
+
         $experiences = $query->orderByDesc('created_at')->paginate(20);
 
         return ExperienceResource::collection($experiences);
@@ -55,11 +71,29 @@ class ExperienceController extends Controller
 
     public function store(StoreExperienceRequest $request)
     {
-        $experience = Experience::create([
+        $data = [
             ...$request->validated(),
             'status' => Experience::STATUS_DRAFT,
             'created_by' => $request->user()->id,
-        ]);
+        ];
+
+        // Resolve the partner-supplied Google Maps link (if any) into real
+        // coordinates + a place name, so story/image generation can be
+        // grounded in the specific pinned location rather than just the
+        // city name. Resolution failures (dead link, unsupported format,
+        // API quota) never block experience creation — the pin fields
+        // simply stay null and generation falls back to the city name.
+        if (! empty($data['google_maps_link'])) {
+            $resolved = $this->mapsService->resolveLink($data['google_maps_link']);
+
+            if ($resolved !== null) {
+                $data['pin_latitude'] = $resolved['latitude'];
+                $data['pin_longitude'] = $resolved['longitude'];
+                $data['pin_place_name'] = $resolved['place_name'];
+            }
+        }
+
+        $experience = Experience::create($data);
 
         return (new ExperienceResource($experience->load('city')))
             ->response()

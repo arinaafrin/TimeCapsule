@@ -20,6 +20,9 @@ class ExperienceFactory extends Factory
             'created_by' => null,
             'approved_by' => null,
             'google_maps_link' => null,
+            'pin_latitude' => null,
+            'pin_longitude' => null,
+            'pin_place_name' => null,
         ];
     }
 

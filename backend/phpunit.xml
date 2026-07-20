@@ -25,5 +25,7 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="GOOGLE_MAPS_SERVER_API_KEY" value="testing_dummy_key"/>
+        <env name="GOOGLE_MAPS_API_KEY" value="testing_dummy_key"/>
     </php>
 </phpunit>

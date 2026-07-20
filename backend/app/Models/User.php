@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Experience::class, 'favorites')->withTimestamps();
     }
+
+    public function partnerOrganizations()
+    {
+        return $this->hasMany(PartnerOrganization::class, 'contact_user_id');
+    }
 }

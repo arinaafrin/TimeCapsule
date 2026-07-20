@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CityMapSelector } from './CityMapSelector';
 import { YearTimelineSlider } from './YearTimelineSlider';
+import { CreateExperienceForm } from './CreateExperienceForm';
 import { useListExperiencesQuery } from '../../api/experiencesApi';
+import { useAppSelector } from '../../app/hooks';
 import type { City } from '../../types/city';
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -9,6 +12,8 @@ const CURRENT_YEAR = new Date().getFullYear();
 export function ExplorerPage() {
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [selectedYear, setSelectedYear] = useState<number>(CURRENT_YEAR);
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const canCreate = currentUser?.role === 'partner' || currentUser?.role === 'admin';
 
   const { data: matchingExperiences = [], isFetching } = useListExperiencesQuery(
     selectedCity ? { city_id: selectedCity.id, year: selectedYear } : undefined,
@@ -17,7 +22,12 @@ export function ExplorerPage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-slate-900">Explore TimeCapsule</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-slate-900">Explore TimeCapsule</h1>
+        <Link to="/journeys" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
+          Browse Journeys →
+        </Link>
+      </div>
       <p className="mt-2 text-slate-500">
         Pick a city, then choose a year to witness. If a TimeCapsule already exists for that
         moment, you'll step right in.
@@ -46,11 +56,15 @@ export function ExplorerPage() {
           )}
 
           {!isFetching && matchingExperiences.length === 0 && (
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm text-slate-600">
-                No TimeCapsule exists yet for {selectedCity.name} in {selectedYear}. Partners can
-                request one be generated.
-              </p>
+            <div className="space-y-4">
+              <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">
+                  No TimeCapsule exists yet for {selectedCity.name} in {selectedYear}.
+                  {!canCreate && ' Partners can request one be generated.'}
+                </p>
+              </div>
+
+              {canCreate && <CreateExperienceForm cityId={selectedCity.id} year={selectedYear} />}
             </div>
           )}
         </div>

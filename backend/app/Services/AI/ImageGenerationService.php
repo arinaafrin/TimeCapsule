@@ -26,7 +26,13 @@ class ImageGenerationService implements ImageGeneratorInterface
         }
 
         $city = $experience->city;
-        $prompt = $this->buildPrompt($city->name, $experience->year, $experience->era_label);
+        $prompt = $this->buildPrompt(
+            cityName: $city->name,
+            year: $experience->year,
+            eraLabel: $experience->era_label,
+            pinPlaceName: $experience->pin_place_name,
+            isFuture: $experience->isFutureYear(),
+        );
 
         try {
             $response = $this->http->post('v2beta/stable-image/generate/core', [
@@ -51,17 +57,28 @@ class ImageGenerationService implements ImageGeneratorInterface
         }
     }
 
-    protected function buildPrompt(string $cityName, int $year, ?string $eraLabel): string
-    {
+    protected function buildPrompt(
+        string $cityName,
+        int $year,
+        ?string $eraLabel,
+        ?string $pinPlaceName,
+        bool $isFuture,
+    ): string {
         // Security: same rationale as StoryGenerationService::sanitizeForPrompt
-        // — cityName/eraLabel are partner-supplied and get sanitized before
+        // — these fields are partner-supplied and get sanitized before
         // being interpolated into a prompt sent to a third-party image API.
         $cityName = $this->sanitizeForPrompt($cityName);
         $eraContext = $eraLabel ? ' during the '.$this->sanitizeForPrompt($eraLabel).' period' : '';
+        $setting = $pinPlaceName ? $this->sanitizeForPrompt($pinPlaceName) : $cityName;
 
-        return "A photorealistic, historically accurate wide-angle panoramic view of {$cityName} "
-            ."in the year {$year}{$eraContext}. Ground-level perspective as if standing in a public "
-            .'square or street, natural lighting consistent with the period, no modern anachronisms, '
+        $styleContext = $isFuture
+            ? 'a plausible speculative-future reimagining, not a historical photo, clearly an '
+                .'imagined extrapolation of real current trends and architecture'
+            : 'photorealistic and historically accurate, no modern anachronisms';
+
+        return "A wide-angle panoramic view of {$setting} in {$cityName} "
+            ."in the year {$year}{$eraContext}. {$styleContext}. Ground-level perspective as if "
+            .'standing in a public square or street, natural lighting consistent with the period, '
             .'no text or watermarks, suitable for a 360-degree panoramic photo sphere.';
     }
 
