@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AdminStatsController;
 use App\Http\Controllers\Api\V1\AiGenerationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CityController;
@@ -91,6 +92,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/partner-organizations', [PartnerOrganizationController::class, 'store'])
             ->middleware('role:partner,admin');
         Route::post('/partner-organizations/{partnerOrganization}/verify', [PartnerOrganizationController::class, 'verify'])
+            ->middleware('role:admin');
+
+        // Admin dashboard — platform-wide counts + recent activity.
+        Route::get('/admin/stats', [AdminStatsController::class, 'index'])
             ->middleware('role:admin');
     });
 });

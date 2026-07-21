@@ -13,6 +13,8 @@ export interface ExperienceListParams {
   city_id?: string;
   year?: number;
   status?: string;
+  search?: string;
+  mine?: boolean;
 }
 
 export interface CreateExperiencePayload {

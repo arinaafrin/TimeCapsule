@@ -22,7 +22,15 @@ class ExperienceController extends Controller
 
         $user = $request->user();
 
-        if ($user && $user->isAdmin()) {
+        if ($request->boolean('mine')) {
+            // "My Experiences" — owner sees every one of their own, regardless
+            // of status (draft/pending/approved/rejected), unlike the default
+            // visibility rules below.
+            if (! $user) {
+                abort(403, 'You must be logged in to view your own experiences.');
+            }
+            $query->where('created_by', $user->id);
+        } elseif ($user && $user->isAdmin()) {
             // Admins may optionally filter by any status; default to all.
             if ($status = $request->query('status')) {
                 $query->where('status', $status);

@@ -18,9 +18,12 @@ export function ModerationReviewCard({ experience }: ModerationReviewCardProps) 
   const [rejectExperience, { isLoading: isRejecting }] = useRejectExperienceMutation();
   const [commentOnExperience, { isLoading: isCommenting }] = useCommentOnExperienceMutation();
 
-  const cityName = 'name' in experience.city ? experience.city.name : 'Unknown city';
-  const description =
-    'description' in experience.story_content ? experience.story_content.description : null;
+  // const cityName = 'name' in experience.city ? experience.city.name : 'Unknown city';
+  // const description =
+  //   'description' in experience.story_content ? experience.story_content.description : null;
+
+  const cityName = experience.city?.name ?? 'Unknown city';
+  const description = experience.story_content?.description ?? null;
 
   const handleApprove = async () => {
     await approveExperience({ experienceId: experience.id, notes: notes || undefined }).unwrap();

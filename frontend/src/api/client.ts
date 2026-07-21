@@ -15,6 +15,6 @@ export const apiClient = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Experience', 'Favorite', 'Media', 'ModerationQueue', 'PartnerOrganization', 'Journey'],
+  tagTypes: ['User', 'Experience', 'Favorite', 'Media', 'ModerationQueue', 'PartnerOrganization', 'Journey', 'AdminStats'],
   endpoints: () => ({}),
 });

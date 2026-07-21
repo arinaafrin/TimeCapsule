@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   useListPartnerOrganizationsQuery,
   useCreatePartnerOrganizationMutation,
@@ -26,7 +27,19 @@ export function PartnerDashboardPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-slate-900">Partner dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-slate-900">Partner dashboard</h1>
+        <div className="flex items-center gap-4">
+          <Link to="/my-experiences" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
+            My Experiences
+          </Link>
+          {isAdmin && (
+            <Link to="/admin" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
+              Admin Dashboard
+            </Link>
+          )}
+        </div>
+      </div>
       <p className="mt-2 text-slate-500">
         {isAdmin
           ? 'Review and verify institutions requesting TimeCapsule access.'

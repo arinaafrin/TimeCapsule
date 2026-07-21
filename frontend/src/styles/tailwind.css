@@ -1,9 +1,125 @@
 @import "tailwindcss";
 
+/*
+  TimeCapsule design tokens.
+  Palette/feel modeled after the "Phoenix" admin theme reference
+  (soft indigo primary, neutral slate surfaces, subtle card shadows,
+  vertical sidebar navigation) — adapted to Tailwind v4's CSS-first
+  @theme configuration rather than a JS config file.
+*/
+@theme {
+  --color-brand-50:  #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f5cdb;
+  --color-brand-700: #4045b0;
+  --color-brand-800: #35398c;
+  --color-brand-900: #2d3070;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8f9fc;
+  --color-surface-sunken: #f1f2f8;
+
+  --color-ink-900: #1b1d2a;
+  --color-ink-700: #3d4055;
+  --color-ink-500: #6b6f8a;
+  --color-ink-300: #a4a7c1;
+
+  --color-line: #e6e7f0;
+
+  --shadow-card: 0 1px 2px 0 rgb(27 29 42 / 0.04), 0 1px 6px -1px rgb(27 29 42 / 0.06);
+  --shadow-card-hover: 0 4px 10px -2px rgb(27 29 42 / 0.08), 0 2px 6px -2px rgb(27 29 42 / 0.06);
+  --shadow-sidebar: 1px 0 0 0 rgb(27 29 42 / 0.06);
+
+  --radius-card: 0.875rem;
+  --radius-control: 0.5rem;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
+  background-color: var(--color-surface-muted);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Reusable component classes ───────────────────────────────────────── */
+
+.tc-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.tc-card-hover {
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+.tc-card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.tc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+.tc-badge-brand   { background-color: var(--color-brand-100); color: var(--color-brand-700); }
+.tc-badge-neutral { background-color: var(--color-surface-sunken); color: var(--color-ink-700); }
+.tc-badge-success { background-color: #dcf5e7; color: #17784a; }
+.tc-badge-warning { background-color: #fdf1d6; color: #92660c; }
+.tc-badge-danger  { background-color: #fbe1e1; color: #a4272c; }
+
+/* Vertical sidebar nav link */
+.tc-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: var(--radius-control);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink-500);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.tc-nav-link:hover {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-ink-900);
+}
+.tc-nav-link[data-active="true"] {
+  background-color: var(--color-brand-50);
+  color: var(--color-brand-700);
+}
+.tc-nav-link[data-active="true"] svg {
+  color: var(--color-brand-600);
+}
+
+.tc-nav-section-label {
+  padding: 0 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-300);
+}
+
+.tc-scrollbar-thin::-webkit-scrollbar { width: 6px; }
+.tc-scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-line);
+  border-radius: 9999px;
 }

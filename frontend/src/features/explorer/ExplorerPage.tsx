@@ -24,9 +24,21 @@ export function ExplorerPage() {
     <div className="mx-auto min-h-screen max-w-3xl px-4 py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-slate-900">Explore TimeCapsule</h1>
-        <Link to="/journeys" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
-          Browse Journeys →
-        </Link>
+        <div className="flex items-center gap-4">
+          {canCreate && (
+            <Link to="/my-experiences" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
+              My Experiences
+            </Link>
+          )}
+          {currentUser?.role === 'admin' && (
+            <Link to="/admin" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
+              Admin Dashboard
+            </Link>
+          )}
+          <Link to="/journeys" className="text-sm font-medium text-slate-600 underline hover:text-slate-900">
+            Browse Journeys →
+          </Link>
+        </div>
       </div>
       <p className="mt-2 text-slate-500">
         Pick a city, then choose a year to witness. If a TimeCapsule already exists for that

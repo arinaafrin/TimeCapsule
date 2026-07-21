@@ -12,6 +12,7 @@ use App\Models\PartnerOrganization;
 use App\Models\StoryContent;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Seeds a coherent demo dataset (5+ rows per module) on top of DemoCitiesSeeder.
@@ -26,24 +27,47 @@ class DemoDataSeeder extends Seeder
         // so make sure the demo cities it depends on actually exist first.
         $this->call(DemoCitiesSeeder::class);
 
-        $admin = User::factory()->admin()->create([
-            'name' => 'Ada Curator',
-            'email' => 'admin@timecapsule.test',
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@timecapsule.test'],
+            [
+                'name' => 'Ada Curator',
+                'role' => User::ROLE_ADMIN,
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+            ]
+        );
 
-        $partners = collect([
+        $partnerDefs = [
             ['name' => 'Louvre Digital Team', 'email' => 'partner1@timecapsule.test'],
             ['name' => 'Colosseum Archive', 'email' => 'partner2@timecapsule.test'],
             ['name' => 'Kyoto Heritage Trust', 'email' => 'partner3@timecapsule.test'],
-        ])->map(fn(array $attrs) => User::factory()->partner()->create($attrs));
+        ];
+        $partners = collect($partnerDefs)->map(fn (array $attrs) => User::updateOrCreate(
+            ['email' => $attrs['email']],
+            [
+                'name' => $attrs['name'],
+                'role' => User::ROLE_PARTNER,
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+            ]
+        ));
 
-        $visitors = collect([
+        $visitorDefs = [
             ['name' => 'Priya Nair', 'email' => 'visitor1@timecapsule.test'],
             ['name' => 'Sam Okafor', 'email' => 'visitor2@timecapsule.test'],
             ['name' => 'Elena Popescu', 'email' => 'visitor3@timecapsule.test'],
             ['name' => 'Marcus Lee', 'email' => 'visitor4@timecapsule.test'],
             ['name' => 'Yuki Tanaka', 'email' => 'visitor5@timecapsule.test'],
-        ])->map(fn(array $attrs) => User::factory()->create($attrs));
+        ];
+        $visitors = collect($visitorDefs)->map(fn (array $attrs) => User::updateOrCreate(
+            ['email' => $attrs['email']],
+            [
+                'name' => $attrs['name'],
+                'role' => User::ROLE_VISITOR,
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+            ]
+        ));
 
         $cities = City::all()->keyBy('name');
 
@@ -115,7 +139,7 @@ class DemoDataSeeder extends Seeder
         });
 
         // Favorites: each of the 5 visitors favorites at least one approved experience.
-        $approved = $experiences->filter(fn(Experience $e) => $e->isApproved())->values();
+        $approved = $experiences->filter(fn (Experience $e) => $e->isApproved())->values();
         $visitors->each(function (User $visitor, int $i) use ($approved) {
             Favorite::factory()->create([
                 'user_id' => $visitor->id,
@@ -124,7 +148,7 @@ class DemoDataSeeder extends Seeder
         });
 
         // Partner organizations — one per partner, plus 2 extra unaffiliated/pending ones.
-        $partners->each(fn(User $partner, int $i) => PartnerOrganization::factory()->create([
+        $partners->each(fn (User $partner, int $i) => PartnerOrganization::factory()->create([
             'name' => match ($i) {
                 0 => 'Louvre Digital Team',
                 1 => 'Colosseum Archive Project',
